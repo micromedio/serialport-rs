@@ -259,19 +259,15 @@ impl SerialPort for COMPort {
     }
 
     fn write_request_to_send(&mut self, level: bool) -> Result<()> {
-        if level {
-            self.escape_comm_function(SETRTS)
-        } else {
-            self.escape_comm_function(CLRRTS)
-        }
+        let mut dcb = dcb::get_dcb(self.handle)?;
+        dcb.set_fRtsControl(level as DWORD);
+        dcb::set_dcb(self.handle, dcb)
     }
 
     fn write_data_terminal_ready(&mut self, level: bool) -> Result<()> {
-        if level {
-            self.escape_comm_function(SETDTR)
-        } else {
-            self.escape_comm_function(CLRDTR)
-        }
+        let mut dcb = dcb::get_dcb(self.handle)?;
+        dcb.set_fDtrControl(level as DWORD);
+        dcb::set_dcb(self.handle, dcb)
     }
 
     fn read_clear_to_send(&mut self) -> Result<bool> {
